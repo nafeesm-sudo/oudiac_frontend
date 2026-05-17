@@ -3,6 +3,7 @@
 import { Menu, Search, Heart, ShoppingBag, User, X } from "lucide-react";
 
 import { useState } from "react";
+import ShopAll from "./ShopAll";
 
 const Navbar = ({ cartCount, onSearch }) => {
   const [mobileMenu, setMobileMenu] = useState(false);
@@ -29,9 +30,12 @@ const Navbar = ({ cartCount, onSearch }) => {
           </button>
 
           <div className="hidden lg:flex gap-6 text-sm font-medium text-white/100">
-            <a href="#">FRAGRANCES</a>
-            <a href="#">COLLECTIONS</a>
-            <a href="#">GIFTS</a>
+            <a href="#">HOME</a>
+            {/* <a href="#">SHOP ALL</a> */}
+            <ShopAll />
+            {/* //INSIDE SHOP AALL, WE CAN HAVE MENS, WOMENS, UNISEX FRAGRANCES AND ATAR BAKHOON */}
+            <a href="#">COMBO OFFER</a>
+            <a href="#">CONTACT US</a>
           </div>
         </div>
 
