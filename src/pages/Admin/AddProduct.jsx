@@ -8,6 +8,7 @@ import {
   Save,
 } from "lucide-react";
 import AdminLayout from "../../components/Admin/Layout/AdminLayout";
+import Api from "../API/Api";
 
 const AddProduct = () => {
   const navigate = useNavigate();
@@ -16,16 +17,19 @@ const AddProduct = () => {
   const [formData, setFormData] = useState({
     name: "",
     description: "",
-    price: "",
-    mrp: "",
+    sellingPrice: "",
+    MRP: "",
     sku: "",
-    stock: "",
-    category: "",
-    status: "draft",
+    variantType: "",
+    quantity: "",
+    productStatus: "DRAFT",
+    categoryName: "",
+    brandName: "",
+    productType: "",
+    fragranceFamily: "",
   });
 
   // Dummy Image State for UI demonstration
-  const [images, setImages] = useState([]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -33,25 +37,60 @@ const AddProduct = () => {
   };
 
   // Dummy image upload handler
+  // const [images, setImages] = useState([]);
+  // const handleImageUpload = (e) => {
+  //   const files = Array.from(e.target.files);
+  //   if (files.length > 0) {
+  //     // In a real app, you would upload to a server/S3 here
+  //     const newImages = files.map((file) => URL.createObjectURL(file));
+  //     setImages((prev) => [...prev, ...newImages]);
+  //   }
+  // };
+
+  // const removeImage = (indexToRemove) => {
+  //   setImages((prev) => prev.filter((_, index) => index !== indexToRemove));
+  // };
+
+  const [images, setImages] = useState([]); // Preview URLs
+  const [imageFiles, setImageFiles] = useState([]); // Actual files
   const handleImageUpload = (e) => {
     const files = Array.from(e.target.files);
-    if (files.length > 0) {
-      // In a real app, you would upload to a server/S3 here
-      const newImages = files.map((file) => URL.createObjectURL(file));
-      setImages((prev) => [...prev, ...newImages]);
-    }
-  };
 
+    setImageFiles((prev) => [...prev, ...files]);
+
+    const previews = files.map((file) => URL.createObjectURL(file));
+
+    setImages((prev) => [...prev, ...previews]);
+  };
   const removeImage = (indexToRemove) => {
     setImages((prev) => prev.filter((_, index) => index !== indexToRemove));
+
+    setImageFiles((prev) => prev.filter((_, index) => index !== indexToRemove));
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log("Product Data Submitted:", { ...formData, images });
-    // Add API call here
-    alert("Product saved successfully!");
-    navigate("/");
+
+    const data = new FormData();
+
+    Object.keys(formData).forEach((key) => {
+      data.append(key, formData[key]);
+    });
+
+    imageFiles.forEach((file) => {
+      data.append("images", file);
+    });
+
+    try {
+      const response = await Api.post("/products/oudiac/add", data);
+
+      console.log(response.data);
+      alert("Product saved successfully!");
+      navigate("/");
+    } catch (error) {
+      console.error(error);
+      alert("Failed to save product.");
+    }
   };
 
   return (
@@ -144,11 +183,11 @@ const AddProduct = () => {
                   </label>
                   <input
                     type="number"
-                    name="price"
+                    name="sellingPrice"
                     required
                     min="0"
                     step="0.01"
-                    value={formData.price}
+                    value={formData.sellingPrice}
                     onChange={handleChange}
                     placeholder="0.00"
                     className="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-colors text-sm"
@@ -160,10 +199,10 @@ const AddProduct = () => {
                   </label>
                   <input
                     type="number"
-                    name="mrp"
+                    name="MRP"
                     min="0"
                     step="0.01"
-                    value={formData.mrp}
+                    value={formData.MRP}
                     onChange={handleChange}
                     placeholder="0.00"
                     className="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-colors text-sm"
@@ -193,14 +232,27 @@ const AddProduct = () => {
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1.5">
+                    Variant(e.g., 100ml, 50ml)
+                  </label>
+                  <input
+                    type="text"
+                    name="variantType"
+                    value={formData.variantType}
+                    onChange={handleChange}
+                    placeholder="e.g., 100ml, 50ml"
+                    className="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-colors text-sm uppercase"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1.5">
                     Quantity in Stock
                   </label>
                   <input
                     type="number"
-                    name="stock"
+                    name="quantity"
                     required
                     min="0"
-                    value={formData.stock}
+                    value={formData.quantity}
                     onChange={handleChange}
                     placeholder="0"
                     className="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-colors text-sm"
@@ -275,20 +327,60 @@ const AddProduct = () => {
                     Category
                   </label>
                   <select
-                    name="category"
+                    name="categoryName"
                     required
-                    value={formData.category}
+                    value={formData.categoryName}
                     onChange={handleChange}
                     className="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-colors text-sm appearance-none cursor-pointer"
                   >
                     <option value="" disabled>
                       Select category
                     </option>
-                    <option value="dairy">Dairy & Bread</option>
-                    <option value="vegetables">Vegetables & Fruits</option>
-                    <option value="snacks">Snacks & Munchies</option>
-                    <option value="beverages">Beverages</option>
-                    <option value="meat">Meat & Fish</option>
+                    <option value="MENS">Mens</option>
+                    <option value="WOMENS">Womens</option>
+                    <option value="ALL">All</option>
+                  </select>
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1.5">
+                    Brand
+                  </label>
+                  <select
+                    name="brandName"
+                    required
+                    value={formData.brandName}
+                    onChange={handleChange}
+                    className="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-colors text-sm appearance-none cursor-pointer"
+                  >
+                    <option value="" disabled>
+                      Select brand
+                    </option>
+                    <option value="Sanaya">Sanaya</option>
+                    <option value="Voka">Voka</option>
+                    <option value="Natural Vive">Natural Vive</option>
+                    <option value="Beverages">Beverages</option>
+                  </select>
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1.5">
+                    Product Type
+                  </label>
+                  <select
+                    name="productType"
+                    required
+                    value={formData.productType}
+                    onChange={handleChange}
+                    className="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-colors text-sm appearance-none cursor-pointer"
+                  >
+                    <option value="" disabled>
+                      Select product type
+                    </option>
+                    <option value="ATTAR">Attar</option>
+                    <option value="PERFUME">Perfume</option>
+                    <option value="DAKHOON">Dakhoon</option>
+                    <option value="BAKHOOR">Bakhoor</option>
                   </select>
                 </div>
 
@@ -300,9 +392,9 @@ const AddProduct = () => {
                     <label className="flex items-center gap-2 cursor-pointer">
                       <input
                         type="radio"
-                        name="status"
-                        value="published"
-                        checked={formData.status === "published"}
+                        name="productStatus"
+                        value="PUBLISHED"
+                        checked={formData.productStatus === "PUBLISHED"}
                         onChange={handleChange}
                         className="text-emerald-600 focus:ring-emerald-500"
                       />
@@ -311,9 +403,9 @@ const AddProduct = () => {
                     <label className="flex items-center gap-2 cursor-pointer">
                       <input
                         type="radio"
-                        name="status"
-                        value="draft"
-                        checked={formData.status === "draft"}
+                        name="productStatus"
+                        value="DRAFT"
+                        checked={formData.productStatus === "DRAFT"}
                         onChange={handleChange}
                         className="text-gray-600 focus:ring-gray-500"
                       />

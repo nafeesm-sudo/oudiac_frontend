@@ -23,12 +23,12 @@ const menuItems = [
   { name: "Inventory", icon: Box, path: "/admin/inventory" },
   { name: "Orders", icon: ShoppingCart, path: "/admin/orders" },
   { name: "Stores", icon: Store, path: "/admin/stores" },
-  { name: "Customers", icon: Users, path: "/customers" },
-  { name: "Delivery Partners", icon: Bike, path: "/delivery" },
-  { name: "Analytics", icon: TrendingUp, path: "/analytics" },
-  { name: "Coupons", icon: Tag, path: "/coupons" },
-  { name: "Notifications", icon: Bell, path: "/notifications" },
-  { name: "Settings", icon: Settings, path: "/settings" },
+  { name: "Customers", icon: Users, path: "/admin/customers" },
+  { name: "Delivery Partners", icon: Bike, path: "/admin/delivery" },
+  { name: "Analytics", icon: TrendingUp, path: "/admin/analytics" },
+  { name: "Coupons", icon: Tag, path: "/admin/coupons" },
+  { name: "Notifications", icon: Bell, path: "/admin/notifications" },
+  { name: "Settings", icon: Settings, path: "/admin/settings" },
 ];
 
 const Sidebar = ({ isOpen }) => {
