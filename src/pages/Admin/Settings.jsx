@@ -13,6 +13,7 @@ import {
   Lock,
 } from "lucide-react";
 import AdminLayout from "../../components/Admin/Layout/AdminLayout";
+import { useNavigate } from "react-router-dom";
 
 const Settings = () => {
   const [activeTab, setActiveTab] = useState("general");
@@ -63,6 +64,12 @@ const Settings = () => {
     },
   ];
 
+  const navigate = useNavigate();
+
+  const handleSave = () => {
+    console.log("Saving settings with data");
+  };
+
   return (
     <AdminLayout>
       {/* Header */}
@@ -77,7 +84,10 @@ const Settings = () => {
           <button className="px-4 py-2 bg-white border border-gray-200 text-gray-700 rounded-lg text-sm font-medium hover:bg-gray-50 transition-colors">
             Cancel
           </button>
-          <button className="flex items-center gap-2 px-6 py-2 bg-emerald-600 text-white rounded-lg text-sm font-bold hover:bg-emerald-700 transition-colors shadow-sm">
+          <button
+            onClick={handleSave}
+            className="flex items-center gap-2 px-6 py-2 bg-emerald-600 text-white rounded-lg text-sm font-bold hover:bg-emerald-700 transition-colors shadow-sm"
+          >
             <Save className="w-4 h-4" />
             Save Changes
           </button>

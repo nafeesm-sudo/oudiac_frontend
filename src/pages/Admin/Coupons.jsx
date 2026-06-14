@@ -16,6 +16,7 @@ import {
   Sparkles,
 } from "lucide-react";
 import AdminLayout from "../../components/Admin/Layout/AdminLayout";
+import { useNavigate } from "react-router-dom";
 
 // Dummy Coupons Data
 const initialCoupons = [
@@ -84,6 +85,7 @@ const initialCoupons = [
 const Coupons = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState("All");
+  const navigate = useNavigate();
 
   // Status Badge Logic
   const getStatusBadge = (status) => {
@@ -149,7 +151,10 @@ const Coupons = () => {
           </p>
         </div>
         <div className="flex items-center gap-3">
-          <button className="flex items-center gap-2 px-4 py-2 bg-emerald-600 text-white rounded-lg text-sm font-medium hover:bg-emerald-700 transition-colors shadow-sm">
+          <button
+            onClick={() => navigate("/admin/coupons/add")}
+            className="flex items-center gap-2 px-4 py-2 bg-emerald-600 text-white rounded-lg text-sm font-medium hover:bg-emerald-700 transition-colors shadow-sm"
+          >
             <Plus className="w-4 h-4" />
             Create Coupon
           </button>

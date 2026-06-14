@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   Search,
   Filter,
@@ -14,71 +14,73 @@ import {
   Phone,
 } from "lucide-react";
 import AdminLayout from "../../components/Admin/Layout/AdminLayout"; // Adjust path based on your setup
+import { useNavigate } from "react-router-dom";
+import Api from "../API/Api";
 
 // Dummy Stores Data
 const initialStores = [
   {
     id: "STR-KOR-01",
-    name: "Koramangala Hub",
-    location: "Block 5, Koramangala",
-    manager: "Ankit Sharma",
-    phone: "+91 98765 11111",
-    status: "Open",
+    storeName: "Koramangala Hub",
+    address: "Block 5, Koramangala",
+    managerName: "Ankit Sharma",
+    storePhone: "+91 98765 11111",
+    storeStatus: "ACTIVE",
     ordersToday: 845,
     revenueToday: "₹1.2L",
     activePartners: 42,
   },
   {
     id: "STR-HSR-02",
-    name: "HSR Layout Sector 2",
-    location: "27th Main Road, HSR",
-    manager: "Priya Patel",
-    phone: "+91 98765 22222",
-    status: "High Volume",
+    storeName: "HSR Layout Sector 2",
+    address: "27th Main Road, HSR",
+    managerName: "Priya Patel",
+    storePhone: "+91 98765 22222",
+    storeStatus: "HIGH_VOLUME",
     ordersToday: 1120,
     revenueToday: "₹1.8L",
     activePartners: 55,
   },
   {
     id: "STR-IND-01",
-    name: "Indiranagar Main",
-    location: "100ft Road, Indiranagar",
-    manager: "Rahul Desai",
-    phone: "+91 98765 33333",
-    status: "Open",
+    storeName: "Indiranagar Main",
+    address: "100ft Road, Indiranagar",
+    managerName: "Rahul Desai",
+    storePhone: "+91 98765 33333",
+    storeStatus: "ACTIVE",
     ordersToday: 630,
     revenueToday: "₹95K",
     activePartners: 30,
   },
   {
     id: "STR-WFD-03",
-    name: "Whitefield Tech Park",
-    location: "ITPL Main Road",
-    manager: "Sneha Reddy",
-    phone: "+91 98765 44444",
-    status: "Closed",
+    storeName: "Whitefield Tech Park",
+    address: "ITPL Main Road",
+    managerName: "Sneha Reddy",
+    storePhone: "+91 98765 44444",
+    storeStatus: "INACTIVE",
     ordersToday: 0,
     revenueToday: "₹0",
     activePartners: 0,
   },
   {
     id: "STR-JP-01",
-    name: "JP Nagar Phase 6",
-    location: "Outer Ring Road, JP Nagar",
-    manager: "Vikram Singh",
-    phone: "+91 98765 55555",
-    status: "Open",
+    storeName: "JP Nagar Phase 6",
+    address: "Outer Ring Road, JP Nagar",
+    managerName: "Vikram Singh",
+    storePhone: "+91 98765 55555",
+    storeStatus: "ACTIVE",
     ordersToday: 410,
     revenueToday: "₹62K",
     activePartners: 25,
   },
   {
     id: "STR-BTM-02",
-    name: "BTM Layout Stage 2",
-    location: "Udupi Garden Road",
-    manager: "Neha Gupta",
-    phone: "+91 98765 66666",
-    status: "High Volume",
+    storeName: "BTM Layout Stage 2",
+    address: "Udupi Garden Road",
+    managerName: "Neha Gupta",
+    storePhone: "+91 98765 66666",
+    storeStatus: "HIGH_VOLUME",
     ordersToday: 950,
     revenueToday: "₹1.4L",
     activePartners: 48,
@@ -88,24 +90,65 @@ const initialStores = [
 const Stores = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState("All");
+  const navigate = useNavigate();
+
+  const [stores, setStores] = useState([]);
+  const [filteredData, setFilteredData] = useState({
+    totalActiveStores: 0,
+    highVolumeStores: 0,
+    networkOrdersToday: 0,
+    activeFleetPartners: 0,
+  });
+
+  const fetchStores = async () => {
+    try {
+      const response = await Api.get("/stores/admin/oudiac/get-stores");
+
+      // const managersData = await response.json();
+      console.log("Fetched Stores:", response.data);
+      setStores(response.data);
+      setFilteredData({
+        totalActiveStores: response.data.filter(
+          (store) => store.storeStatus === "ACTIVE",
+        ).length,
+        highVolumeStores: response.data.filter(
+          (store) => store.storeStatus === "HIGH_VOLUME",
+        ).length,
+        networkOrdersToday: response.data.reduce(
+          (sum, store) => sum + store.ordersToday,
+          0,
+        ),
+        activeFleetPartners: response.data.reduce(
+          (sum, store) => sum + store.activePartners,
+          0,
+        ),
+      });
+    } catch (error) {
+      console.error("Error fetching stores:", error);
+    }
+  };
+
+  useEffect(() => {
+    fetchStores();
+  }, []);
 
   // Status Badge Logic
   const getStatusBadge = (status) => {
     switch (status) {
-      case "Open":
+      case "ACTIVE":
         return (
           <span className="px-2.5 py-1 text-xs font-semibold rounded-full bg-emerald-50 text-emerald-600 border border-emerald-200 flex items-center w-max gap-1.5">
             <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>{" "}
             Open
           </span>
         );
-      case "High Volume":
+      case "HIGH_VOLUME":
         return (
           <span className="px-2.5 py-1 text-xs font-semibold rounded-full bg-amber-50 text-amber-600 border border-amber-200 flex items-center w-max gap-1.5">
             <Activity className="w-3 h-3" /> High Volume
           </span>
         );
-      case "Closed":
+      case "INACTIVE":
         return (
           <span className="px-2.5 py-1 text-xs font-semibold rounded-full bg-gray-100 text-gray-600 border border-gray-200 flex items-center w-max gap-1.5">
             <Power className="w-3 h-3" /> Offline
@@ -117,13 +160,13 @@ const Stores = () => {
   };
 
   // Filter Logic
-  const filteredStores = initialStores.filter((store) => {
+  const filteredStores = stores?.filter((store) => {
     const matchesSearch =
-      store.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      store.location.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      store.id.toLowerCase().includes(searchTerm.toLowerCase());
+      store.storeName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      store.address.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      store.storeSku.toLowerCase().includes(searchTerm.toLowerCase());
     const matchesStatus =
-      statusFilter === "All" || store.status === statusFilter;
+      statusFilter === "All" || store.storeStatus === statusFilter;
     return matchesSearch && matchesStatus;
   });
 
@@ -142,7 +185,10 @@ const Stores = () => {
             <Map className="w-4 h-4" />
             Map View
           </button>
-          <button className="flex items-center gap-2 px-4 py-2 bg-emerald-600 text-white rounded-lg text-sm font-medium hover:bg-emerald-700 transition-colors shadow-sm">
+          <button
+            onClick={() => navigate("/admin/stores/add")}
+            className="flex items-center gap-2 px-4 py-2 bg-emerald-600 text-white rounded-lg text-sm font-medium hover:bg-emerald-700 transition-colors shadow-sm"
+          >
             <Plus className="w-4 h-4" />
             Add Store
           </button>
@@ -161,8 +207,12 @@ const Stores = () => {
             Total Active Stores
           </p>
           <div className="flex items-end gap-2">
-            <h4 className="text-2xl font-bold text-gray-900">24</h4>
-            <span className="text-sm text-gray-500 mb-1">/ 25 total</span>
+            <h4 className="text-2xl font-bold text-gray-900">
+              {filteredData.totalActiveStores}
+            </h4>
+            <span className="text-sm text-gray-500 mb-1">
+              / {stores?.length || 0} total
+            </span>
           </div>
         </div>
 
@@ -175,7 +225,9 @@ const Stores = () => {
           <p className="text-sm font-medium text-gray-500 mb-1">
             High Volume Stores
           </p>
-          <h4 className="text-2xl font-bold text-gray-900">8</h4>
+          <h4 className="text-2xl font-bold text-gray-900">
+            {filteredData.highVolumeStores}
+          </h4>
         </div>
 
         <div className="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm">
@@ -187,7 +239,9 @@ const Stores = () => {
           <p className="text-sm font-medium text-gray-500 mb-1">
             Network Orders Today
           </p>
-          <h4 className="text-2xl font-bold text-gray-900">14,280</h4>
+          <h4 className="text-2xl font-bold text-gray-900">
+            {filteredData.networkOrdersToday.toLocaleString()}
+          </h4>
         </div>
 
         <div className="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm">
@@ -199,7 +253,9 @@ const Stores = () => {
           <p className="text-sm font-medium text-gray-500 mb-1">
             Active Fleet Partners
           </p>
-          <h4 className="text-2xl font-bold text-gray-900">842</h4>
+          <h4 className="text-2xl font-bold text-gray-900">
+            {filteredData?.activeFleetPartners || 0}
+          </h4>
         </div>
       </div>
 
@@ -220,7 +276,7 @@ const Stores = () => {
 
           <div className="flex items-center gap-3 overflow-x-auto pb-2 md:pb-0 scrollbar-hide">
             <div className="flex items-center bg-gray-50 border border-gray-200 rounded-lg p-1 min-w-max">
-              {["All", "Open", "High Volume", "Closed"].map((status) => (
+              {["All", "ACTIVE", "HIGH_VOLUME", "INACTIVE"].map((status) => (
                 <button
                   key={status}
                   onClick={() => setStatusFilter(status)}
@@ -249,7 +305,7 @@ const Stores = () => {
                 <th className="px-6 py-4 font-medium">Store Manager</th>
                 <th className="px-6 py-4 font-medium">Status</th>
                 <th className="px-6 py-4 font-medium">Today's Orders</th>
-                <th className="px-6 py-4 font-medium">Active Fleet</th>
+                {/* <th className="px-6 py-4 font-medium">Active Fleet</th> */}
                 <th className="px-6 py-4 font-medium text-right">Actions</th>
               </tr>
             </thead>
@@ -263,14 +319,14 @@ const Stores = () => {
                     <td className="px-6 py-4">
                       <div className="flex flex-col">
                         <span className="font-bold text-gray-900 text-sm">
-                          {store.name}
+                          {store.storeName}
                         </span>
                         <div className="flex items-center gap-1.5 text-gray-500 mt-1">
                           <MapPin className="w-3 h-3" />
-                          <span className="text-xs">{store.location}</span>
+                          <span className="text-xs">{store.address}</span>
                           <span className="text-xs text-gray-300 ml-1">|</span>
                           <span className="text-xs font-mono text-gray-400 ml-1">
-                            {store.id}
+                            {store.storeSku}
                           </span>
                         </div>
                       </div>
@@ -278,45 +334,45 @@ const Stores = () => {
                     <td className="px-6 py-4">
                       <div className="flex items-center gap-3">
                         <div className="w-8 h-8 rounded-full bg-blue-100 text-blue-700 flex items-center justify-center text-xs font-bold border border-blue-200">
-                          {store.manager
+                          {store.managerName
                             .split(" ")
                             .map((n) => n[0])
                             .join("")}
                         </div>
                         <div className="flex flex-col">
                           <span className="font-semibold text-gray-900 text-sm">
-                            {store.manager}
+                            {store.managerName}
                           </span>
                           <span className="text-xs text-gray-500 flex items-center gap-1 mt-0.5">
-                            <Phone className="w-3 h-3" /> {store.phone}
+                            <Phone className="w-3 h-3" /> {store.storePhone}
                           </span>
                         </div>
                       </div>
                     </td>
                     <td className="px-6 py-4">
-                      {getStatusBadge(store.status)}
+                      {getStatusBadge(store.storeStatus)}
                     </td>
                     <td className="px-6 py-4">
                       <div className="flex flex-col">
                         <span className="font-bold text-gray-900 text-sm">
-                          {store.ordersToday}{" "}
+                          {store.ordersToday ? store.ordersToday : 0}{" "}
                           <span className="text-xs font-normal text-gray-500">
                             orders
                           </span>
                         </span>
                         <span className="text-xs text-emerald-600 font-medium mt-0.5">
-                          {store.revenueToday} revenue
+                          {store.revenueToday ? store.revenueToday : 0} revenue
                         </span>
                       </div>
                     </td>
-                    <td className="px-6 py-4">
+                    {/* <td className="px-6 py-4">
                       <div className="flex items-center gap-2">
                         <span className="inline-flex items-center justify-center w-6 h-6 rounded-full bg-purple-50 text-purple-700 text-xs font-bold border border-purple-100">
                           {store.activePartners}
                         </span>
                         <span className="text-xs text-gray-500">riders</span>
                       </div>
-                    </td>
+                    </td> */}
                     <td className="px-6 py-4 text-right">
                       <div className="flex items-center justify-end gap-2">
                         <button className="px-3 py-1.5 text-xs font-semibold text-gray-700 bg-white border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors">

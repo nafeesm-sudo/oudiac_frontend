@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import {
   Search,
@@ -14,6 +14,8 @@ import {
   Image as ImageIcon,
 } from "lucide-react";
 import AdminLayout from "../../components/Admin/Layout/AdminLayout"; // Adjust path based on your setup
+import Api from "../API/Api";
+import { filterByDate } from "../../components/Utils/StoreUtils";
 
 // Dummy Product Catalog Data
 const initialProducts = [
@@ -90,23 +92,42 @@ const Products = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [activeTab, setActiveTab] = useState("All");
   const [selectedProducts, setSelectedProducts] = useState([]);
+  const [products, setProducts] = useState([]);
+
+  const fetchProducts = async () => {
+    const page = 0;
+    const size = 10;
+    try {
+      const response = await Api.get("/products/oudiac/get-products", {
+        params: { page, size },
+      });
+      setProducts(response.data.content);
+      console.log("Fetched products:", response.data);
+    } catch (error) {
+      console.error("Error fetching products:", error);
+    }
+  };
+
+  useEffect(() => {
+    fetchProducts();
+  }, []);
 
   // Status Badge Logic
   const getStatusBadge = (status) => {
     switch (status) {
-      case "Published":
+      case "PUBLISHED":
         return (
           <span className="px-2.5 py-1 text-xs font-semibold rounded-full bg-emerald-50 text-emerald-600 border border-emerald-200 flex items-center gap-1">
             <Eye className="w-3 h-3" /> Published
           </span>
         );
-      case "Draft":
+      case "DRAFT":
         return (
           <span className="px-2.5 py-1 text-xs font-semibold rounded-full bg-gray-100 text-gray-600 border border-gray-200 flex items-center gap-1">
             <Edit className="w-3 h-3" /> Draft
           </span>
         );
-      case "Hidden":
+      case "HIDDEN":
         return (
           <span className="px-2.5 py-1 text-xs font-semibold rounded-full bg-amber-50 text-amber-600 border border-amber-200 flex items-center gap-1">
             <EyeOff className="w-3 h-3" /> Hidden
@@ -118,11 +139,12 @@ const Products = () => {
   };
 
   // Filter Logic
-  const filteredProducts = initialProducts.filter((product) => {
+  const filteredProducts = products.filter((product) => {
     const matchesSearch =
       product.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      product.category.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesTab = activeTab === "All" || product.status === activeTab;
+      product.category.name.toLowerCase().includes(searchTerm.toLowerCase());
+    const matchesTab =
+      activeTab === "All" || product.productStatus === activeTab;
     return matchesSearch && matchesTab;
   });
 
@@ -195,7 +217,7 @@ const Products = () => {
 
           {/* Bottom Row: Tabs */}
           <div className="px-4 sm:px-6 flex items-center gap-6 text-sm font-medium">
-            {["All", "Published", "Draft", "Hidden"].map((tab) => (
+            {["All", "PUBLISHED", "DRAFT", "HIDDEN"].map((tab) => (
               <button
                 key={tab}
                 onClick={() => setActiveTab(tab)}
@@ -272,9 +294,9 @@ const Products = () => {
                     </td>
                     <td className="px-6 py-4">
                       <div className="flex items-center gap-4">
-                        {product.image ? (
+                        {product.imageUrl ? (
                           <img
-                            src={product.image}
+                            src={product.imageUrl}
                             alt={product.name}
                             className="w-12 h-12 rounded-xl object-cover border border-gray-200 bg-white"
                           />
@@ -288,33 +310,33 @@ const Products = () => {
                             {product.name}
                           </p>
                           <p className="text-xs text-gray-500 mt-0.5">
-                            ID: {product.id.toString().padStart(5, "0")}
+                            ID: {product.sku.toString().padStart(5, "0")}
                           </p>
                         </div>
                       </div>
                     </td>
                     <td className="px-6 py-4">
                       <span className="inline-flex items-center px-2.5 py-1 rounded-md text-xs font-medium bg-gray-100 text-gray-700">
-                        {product.category}
+                        {product.category.name}
                       </span>
                     </td>
                     <td className="px-6 py-4">
                       <div className="flex flex-col">
                         <span className="font-bold text-gray-900 text-sm">
-                          ₹{product.price}
+                          ₹{product.sellingPrice}
                         </span>
-                        {product.mrp > product.price && (
+                        {product.sellingPrice > product.MRP && (
                           <span className="text-xs text-gray-400 line-through">
-                            ₹{product.mrp}
+                            ₹{product.MRP}
                           </span>
                         )}
                       </div>
                     </td>
                     <td className="px-6 py-4">
-                      {getStatusBadge(product.status)}
+                      {getStatusBadge(product.productStatus)}
                     </td>
                     <td className="px-6 py-4 text-gray-500 text-sm">
-                      {product.date}
+                      {filterByDate(product.createdAt)}
                     </td>
                     <td className="px-6 py-4 text-right">
                       <div className="flex items-center justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">

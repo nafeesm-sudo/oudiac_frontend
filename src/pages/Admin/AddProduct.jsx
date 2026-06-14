@@ -86,7 +86,7 @@ const AddProduct = () => {
 
       console.log(response.data);
       alert("Product saved successfully!");
-      navigate("/");
+      navigate("/admin/products");
     } catch (error) {
       console.error(error);
       alert("Failed to save product.");
@@ -101,7 +101,7 @@ const AddProduct = () => {
           <div className="flex items-center gap-4">
             <button
               type="button"
-              onClick={() => navigate("/admin")}
+              onClick={() => navigate("/admin/products")}
               className="p-2 border border-gray-200 rounded-lg hover:bg-gray-50 text-gray-600 transition-colors"
             >
               <ArrowLeft className="w-5 h-5" />

@@ -24,6 +24,7 @@ const menuItems = [
   { name: "Orders", icon: ShoppingCart, path: "/admin/orders" },
   { name: "Stores", icon: Store, path: "/admin/stores" },
   { name: "Customers", icon: Users, path: "/admin/customers" },
+  { name: "Managers", icon: Users, path: "/admin/managers" },
   { name: "Delivery Partners", icon: Bike, path: "/admin/delivery" },
   { name: "Analytics", icon: TrendingUp, path: "/admin/analytics" },
   { name: "Coupons", icon: Tag, path: "/admin/coupons" },

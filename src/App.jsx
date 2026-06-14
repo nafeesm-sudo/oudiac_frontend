@@ -21,6 +21,10 @@ import Search from "./pages/Customer/Search";
 import Profile from "./pages/Customer/Profile";
 import Checkout from "./pages/Customer/Checkout";
 import { CartProvider } from "./components/Customer/CartContext";
+import AddStore from "./pages/Admin/AddStore";
+import CreateCoupon from "./pages/Admin/CreateCoupon";
+import Managers from "./pages/Admin/Managers";
+import AddManager from "./pages/Admin/AddManager";
 
 const App = () => {
   return (
@@ -46,11 +50,15 @@ const App = () => {
             <Route path="orders" element={<Orders />} />
             <Route path="stores" element={<Stores />} />
             <Route path="customers" element={<Customers />} />
+            <Route path="managers" element={<Managers />} />
+            <Route path="add-manager" element={<AddManager />} />
             <Route path="delivery" element={<DeliveryPartners />} />
             <Route path="analytics" element={<Analytics />} />
             <Route path="coupons" element={<Coupons />} />
             <Route path="notifications" element={<Notifications />} />
             <Route path="settings" element={<Settings />} />
+            <Route path="stores/add" element={<AddStore />} />
+            <Route path="coupons/add" element={<CreateCoupon />} />
           </Route>
         </Routes>
       </CartProvider>
